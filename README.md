@@ -1,5 +1,11 @@
 # CICD
 
+## postgres2 - save credentials in `.env`
+
+Test postgres with endpoints:
+* `curl -X POST "http://localhost:8000/items/?name=TestItem"`
+* `curl "http://localhost:8000/items/"`
+
 ## replicate inside docker:
 * build
 ```
