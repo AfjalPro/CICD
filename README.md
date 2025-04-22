@@ -1,5 +1,22 @@
 # CICD
 
+## EC2 useful notes:
+
+* Building docker image for amd64 and arm64
+```
+docker buildx create --use 
+docker buildx build \
+  --platform linux/amd64,linux/arm64 \
+  -t apolitichen/fastapi-postgres-app:1.0 \
+  --push .  
+```
+
+* Allow inbound port on ubuntu firewall (ufw)
+```
+sudo ufw allow PORT
+```
+
+### 
 
 ## Build & push image to docker hub
 * Build

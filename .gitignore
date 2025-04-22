@@ -1,3 +1,4 @@
 .env
+.ssh
 env
 __pycache__

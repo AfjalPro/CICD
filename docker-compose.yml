@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   app:
-    image: apolitichen/fastapi-postgres-app:latest
+    image: apolitichen/fastapi-postgres-app:1.0
     restart: unless-stopped
     ports:
       - "8000:8000"
