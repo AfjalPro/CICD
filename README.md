@@ -1,7 +1,25 @@
 # CICD
 
 
-## replicate inside docker-compose
+## Build & push image to docker hub
+* Build
+```
+docker build -t apolitichen/fastapi-postgres-app .
+```
+* Tag for versioning
+```
+docker tag apolitichen/fastapi-postgres-app apolitichen/fastapi-postgres-app:1.0
+```
+* Push the image to docker hub
+```
+docker push apolitichen/fastapi-postgres-app:1.0
+```
+* Run docker-compose with pulling the image from docker hub
+```
+docker-compose up -d
+```
+
+## Build image locally and run with docker-compose
 * run (-d for detached mode)
 ```
 docker-compose up -d --build
