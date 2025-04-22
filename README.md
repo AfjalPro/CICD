@@ -1,5 +1,20 @@
 # CICD
 
+
+## replicate inside docker-compose
+* run (-d for detached mode)
+```
+docker-compose up -d --build
+```
+* initialize the db (run once)
+```
+docker-compose exec app python -c "from app import Base, engine; Base.metadata.create_all(bind=engine)"
+```
+* stop
+```
+docker-compose down
+```
+
 ## postgres2 - save credentials in `.env`
 
 Test postgres with endpoints:
