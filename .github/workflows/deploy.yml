@@ -1,0 +1,69 @@
+name: Build, Push & Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        run: |
+          docker buildx create --use
+
+      - name: Log in to Docker Hub
+        run: echo "mypassword" | docker login --username apolitichen --password-stdin
+
+      - name: Build and push Docker image
+        run: |
+          chmod +x build_image.bash
+          ./build_image.bash
+          docker buildx build \
+            --platform linux/amd64,linux/arm64 \
+            -t apolitichen/fastapi-postgres-app:1.1 \
+            --push .
+
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: some_ip
+          username: ubuntu
+          # MUST HIDE THE KEY LATER IN SECRETS!
+          key: |
+            -----BEGIN RSA PRIVATE KEY-----
+            MIIEogIBAAKCAQEAtIDGR2GKb+JrJK9jWdqK6vMVysLZ6XEwmsFDc5o6/3Hg/kRI
+            rEa/pCXA1F5nihirJDpxb/j3Md6uBMo3Ol4ZypUEboA5QbePM/7PqQo6UwOr+8Rc
+            9BU/dzRlLTI+IWKbwgtTuIxT4nz72Cva7q5Zg0I8xSF/fpzlefayAaFrW0uaS4/0
+            4EkXiEI4saGR4iPuPTs3u5wDleVkEmO8NfIRHTchovqlYDz8IhC+g6ly7IFzfiMh
+            c3VmnF2ZvxOdGRAtYtsFK+HLoFawrJzEHMpFyQ6Y1CNFhBsYsJkbmncWY0DwIc8F
+            TGmCVSLUAOZG5WYMpPaSwFFYPtX8Nv6hLlYnxwIDAQABAoIBACHXTtVNLUZCvfG3
+            zDmpZogcIQbNt0s0BHfPKhU/YjZIJHWnWbSq4v0kct2eAW17qIJ3TpM+qyG3bQrK
+            2sXfpJg9jgIlmhZ/EqMd79LybvLnalQegYrlfOudcCakF8/si+U6eGzOKl/5LMJf
+            noFHQNMCFSCkYiHbyo4uOTtjBxyrZD0nsLCZeM4ObfA6xUWhiKesDKSLzznoVayc
+            KKaEr1LCMGqcMRAjEwOiNfifjx+kgepmhumE+jlZLoJAf+zKbcMgB6pK5CXkdpeG
+            e10YAVytPww/KaQBSdN6vj3V7A3eUIVZTvOE5qa0IiTFv/2q/BNSZYuQ9oJ+j7dJ
+            bO6N9pkCgYEA4yMN4rqOD+cAEpMoUNt/3JlqnHDEO3OulvHE7HD7BzByXfWVrozX
+            avSdeYbqxhJkeeVXspgcTdGhfIZ4MSHeGdpU8GMbl04LqcWiyIhBzv+EqJogCC1g
+            KTGIgw4tiYz+0Evk/bEPYp0kYGvdSc4uo9vJmZ+W1P4CDTeupSYtGAUCgYEAy3Cu
+            npHHFblmvD4WIZ6C72yrs4LWiVJqJcLDFHgeUOviA1p1U5OTgVQC32uDfPgKO4/+
+            OOn5/YMYdT12JOl/54n8jbQ9eco6Q/hPSJ28BW40ypaZYRE/MycLue86vR22+txF
+            vUAOV+XwjsYalA13VicnFGF+fEOTnIkSGZOMhlsCgYAA8VRNbJjKWBsX+KRiMYcG
+            U1yt6Ynm9UP0PGykzpM8JGdVHH/SiaMbPoioyHaQ++KO3vTOOPNlH0mcSrKVAZ76
+            XH2dwcuLhTdnLPrP+kDLqyPRz1Hytr1/bkUyxgxKVdt44dfBdcqqjhxoigoRFFn9
+            NBxSFud5WtSHWYPQC6iEQQKBgAsUMt490Bq1wwuDUg84o6bIQz1+ZZKK4271AUyv
+            Ee+UOPW3ymXnxoOngJSMNVfr5hrCR7TvwQZ2SjGwTCvMb4O7dv58j1B/m9axwheR
+            R3kAPG2/79BicQ+nE7NnfMppwNo+fqnEwEM3KXeNAEuJxDLz5OPuP0YjI/nFWS/9
+            Ygy7AoGAGraaIkTXljb+isWE58St9sgb84O/yTTJbyZqlg6IGp0AFboO08AxmBmK
+            U+YWVAIIHZUYsuZxBvks4W9ievaeeb3KfaP2NMmZI7IHP44aR53dKRmRCmM85EvV
+            lRsRIRzDqKxgjhlgatTyq4jLUaRc2LRMFudnCGyVXr+J7ppvyhU=
+            -----END RSA PRIVATE KEY-----
+          script: |
+            cd /home/ubuntu/CICD 
+            git pull
+            docker compose up -d
