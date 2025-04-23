@@ -66,4 +66,5 @@ jobs:
             echo "apolitichen" | ssh-add /home/ubuntu/.ssh/id_ed25519
             cd /home/ubuntu/CICD
             git pull
+            docker compose pull app
             docker compose up -d
