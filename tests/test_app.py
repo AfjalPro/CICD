@@ -1,11 +1,17 @@
-from fastapi.testclient import TestClient
-from app import app
+import requests
 
-client = TestClient(app)
-
-def test_read_root():
-    response = client.get("/")
+def test_read_main():
+    response = requests.get("http://localhost:8000/")
     assert response.status_code == 200
-    json_data = response.json()
-    assert "Hello" in json_data
-    assert json_data["Hello"].startswith("World")
+    assert response.json() == {"Hello": "World - Beket - V4!"}
+
+def test_item_flow():
+    # Test creation
+    create_response = requests.post("http://localhost:8000/items/", params={"name": "test-item"})
+    assert create_response.status_code == 200
+    item_id = create_response.json()["id"]
+
+    # Test listing
+    list_response = requests.get("http://localhost:8000/items/")
+    assert list_response.status_code == 200
+    assert any(item["id"] == item_id for item in list_response.json()["items"])
