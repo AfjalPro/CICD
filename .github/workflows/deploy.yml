@@ -59,7 +59,7 @@ jobs:
       - name: SSH Deploy
         uses: appleboy/ssh-action@v0.1.8
         with:
-          host: 54.90.188.132
+          host: 13.217.222.10
           username: ubuntu
           key: |
             -----BEGIN RSA PRIVATE KEY-----
