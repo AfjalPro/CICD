@@ -15,6 +15,7 @@ export default function Signup({ setToken }) {
       localStorage.setItem('token', data.access_token);
       setToken(data.access_token);
       nav('/dashboard');
+      nav('/posts');
     } catch(err) {
       setError(err.response?.data.detail || 'Signup failed');
     }

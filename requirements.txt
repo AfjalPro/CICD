@@ -6,6 +6,7 @@ psycopg2-binary
 asyncpg
 httpx
 requests
-passlib[bcrypt] 
+passlib[bcrypt]  
+bcrypt==4.0.0
 python-jose>=3.0.0
 python-multipart
