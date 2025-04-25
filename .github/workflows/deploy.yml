@@ -27,7 +27,7 @@ jobs:
           sudo apt-get install -y docker-compose-plugin
 
       - name: Log in to Docker Hub
-        run: echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login --username apolitichen --password-stdin
+        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login --username apolitichen --password-stdin
 
       - name: Build and load AMD64 image for testing
         run: |
@@ -45,7 +45,7 @@ jobs:
           echo "POSTGRES_PORT=5432" >> .env
 
       - name: Start Docker Compose stack
-        run: docker compose up -d
+        run: docker-compose up -d
 
       - name: Install test dependencies
         run: pip install pytest requests
