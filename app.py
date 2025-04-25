@@ -24,7 +24,7 @@ app = FastAPI()
 
 @app.get("/")
 async def read_root():
-    return {"Hello": "World - Beket - V5!"}
+    return {"Hello": "World - Beket - V6!"}
 
 @app.get("/items/")
 async def read_items():
