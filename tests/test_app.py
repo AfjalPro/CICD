@@ -3,7 +3,7 @@ import requests
 def test_read_main():
     response = requests.get("http://localhost:8000/")
     assert response.status_code == 200
-    assert response.json() == {"Hello": "World - Beket - V5!"}
+    assert response.json() == {"Hello": "World - Beket - V7!"}
 
 def test_item_flow():
     create_response = requests.post("http://localhost:8000/items/", params={"name": "test-item"})
