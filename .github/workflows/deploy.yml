@@ -100,9 +100,6 @@ jobs:
             lRsRIRzDqKxgjhlgatTyq4jLUaRc2LRMFudnCGyVXr+J7ppvyhU=
             -----END RSA PRIVATE KEY-----
           script: |
-            eval "$(ssh-agent -s)"
-            echo "apolitichen" | ssh-add /home/ubuntu/.ssh/id_ed25519
             cd /home/ubuntu/CICD
-            git pull
             docker compose pull
             docker compose up -d --force-recreate
