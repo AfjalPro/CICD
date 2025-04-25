@@ -1,12 +1,18 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
 import App from './App';
-import './App.css';
+import './index.css';
+import { CssBaseline } from '@mui/material';
+import { setupAxiosInterceptors } from './api/axios';
+import { store } from './store';
+
+// Setup axios interceptors after store creation
+setupAxiosInterceptors(store);
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <BrowserRouter>
+  <React.StrictMode>
+    <CssBaseline />
     <App />
-  </BrowserRouter>
+  </React.StrictMode>
 );
