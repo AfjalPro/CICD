@@ -1,5 +1,5 @@
 {
-  "name": "auth-blog-app",
+  "name": "react-blogpost",
   "version": "1.0.0",
   "private": true,
   "dependencies": {
@@ -9,11 +9,27 @@
     "axios": "^1.4.0",
     "@mui/material": "^5.14.13",
     "@emotion/react": "^11.11.1",
-    "@emotion/styled": "^11.11.0",
+    "@emotion/styled": "^11.11.0"
+  },
+  "devDependencies": {
     "react-scripts": "5.0.1"
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build"
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }

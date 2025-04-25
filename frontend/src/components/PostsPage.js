@@ -1,65 +1,44 @@
-import React, { useState, useEffect } from 'react';
-import { Box, Button, Stack, MenuItem, Select, FormControl, InputLabel, Typography } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
 import { fetchPosts, deletePost } from '../api';
-import BlogPost from '../BlogPost';
+import { Box, Button, Stack, Card, CardContent, Typography } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
-export default function PostsPage({ token, setToken }) {
+export default function PostsPage() {
   const [posts, setPosts] = useState([]);
-  const [filter, setFilter] = useState('All');
   const nav = useNavigate();
 
-  useEffect(() => {
-    fetchPosts().then(res => setPosts(res.data));
-  }, []);
-
-  const authors = ['All', ...new Set(posts.map(p => p.owner_username))];
-  const displayed = posts.filter(p => filter === 'All' || p.owner_username === filter);
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    setToken(null);
-    nav('/login');
+  useEffect(() => { load(); }, []);
+  const load = async () => {
+    const res = await fetchPosts();
+    setPosts(res.data);
   };
 
-  const handleDelete = async id => {
-    if (window.confirm('Are you sure?')) {
-      await deletePost(id, token);
-      setPosts(posts.filter(p => p.id !== id));
-    }
+  const handleDelete = async (id) => {
+    await deletePost(id);
+    load();
   };
 
   return (
-    <Stack spacing={2}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="h4">Posts</Typography>
-        <Box>
-          <FormControl sx={{ minWidth: 120, mr: 2 }} size="small">
-            <InputLabel>Author</InputLabel>
-            <Select
-              value={filter}
-              label="Author"
-              onChange={e => setFilter(e.target.value)}
-            >
-              {authors.map(a => (
-                <MenuItem key={a} value={a}>{a}</MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <Button onClick={handleLogout}>Log Out</Button>
-        </Box>
+    <Stack spacing={2} sx={{ p: 2 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+        <Typography variant="h4">All Posts</Typography>
+        <Button variant="contained" onClick={() => nav('/posts/new')}>New Post</Button>
       </Box>
 
-      <Button variant="contained" onClick={() => nav('/posts/new')}>New Post</Button>
-
-      {displayed.map(post => (
-        <Box key={post.id} sx={{ position: 'relative' }}>
-          <BlogPost {...post} author={post.owner_username} />
-          <Box sx={{ mt: 1, display: 'flex', gap: 1 }}>
-            <Button size="small" onClick={() => nav(`/posts/${post.id}/edit`)}>Edit</Button>
-            <Button size="small" color="error" onClick={() => handleDelete(post.id)}>Delete</Button>
-          </Box>
-        </Box>
+      {posts.map(p => (
+        <Card key={p.id}>
+          <CardContent>
+            <Typography variant="h6">{p.title}</Typography>
+            <Typography variant="body2" sx={{ mb: 1 }}>
+              {new Date(p.created_at).toLocaleString()}
+            </Typography>
+            <Typography>{p.content}</Typography>
+            <Box sx={{ mt: 1 }}>
+              <Button size="small" onClick={() => nav(`/posts/${p.id}/edit`)}>Edit</Button>
+              <Button size="small" color="error" onClick={() => handleDelete(p.id)}>Delete</Button>
+            </Box>
+          </CardContent>
+        </Card>
       ))}
     </Stack>
   );
