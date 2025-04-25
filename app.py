@@ -201,6 +201,14 @@ def create_post(
     db.refresh(db_post)
     return db_post
 
+@app.get("/users/me", response_model=UserRead)
+def read_users_me(current_user: User = Depends(get_current_user)):
+    return {
+        "id": current_user.id,
+        "username": current_user.username,
+        "email": current_user.email,
+        "created_at": current_user.created_at
+    }
 # --- Read all posts (public) ---
 @app.get("/posts/", response_model=list[PostRead])
 def read_posts(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
