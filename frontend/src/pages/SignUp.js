@@ -13,14 +13,27 @@ export default function SignUp() {
   const { error } = useSelector((state) => state.auth);
 
   const onSubmit = async (data) => {
+    dispatch(setLoading(true));
     try {
-      dispatch(setLoading(true));
-      const user = await authApi.signup(data);
-      const token = await authApi.login({
+      // 1️⃣ Create the user
+      await authApi.signup(data);
+
+      // 2️⃣ Immediately log them in
+      const loginResponse = await authApi.login({
         username: data.username,
         password: data.password,
       });
-      dispatch(setCredentials({ user, token }));
+
+      // 3️⃣ Fetch their profile
+      const userResponse = await authApi.getMe(loginResponse.access_token);
+
+      // 4️⃣ Store exactly the string token + user object
+      dispatch(setCredentials({
+        user:  userResponse,
+        token: loginResponse.access_token
+      }));
+
+      // 5️⃣ Redirect to their posts
       navigate('/me/posts');
     } catch (err) {
       dispatch(setError(err.response?.data?.detail || 'Registration failed'));
@@ -39,27 +52,32 @@ export default function SignUp() {
           fullWidth
           label="Username"
           margin="normal"
-          {...register('username')}
+          {...register('username', { required: 'Username is required' })}
         />
         <TextField
           fullWidth
           label="Email"
           type="email"
           margin="normal"
-          {...register('email')}
+          {...register('email',    { required: 'Email is required' })}
         />
         <TextField
           fullWidth
           label="Password"
           type="password"
           margin="normal"
-          {...register('password')}
+          {...register('password', { required: 'Password is required' })}
         />
-        {error && <Typography color="error">{error}</Typography>}
+        {error && (
+          <Typography color="error" sx={{ mt: 1 }}>
+            {error}
+          </Typography>
+        )}
         <Button
           type="submit"
           variant="contained"
           color="primary"
+          fullWidth
           sx={{ mt: 2 }}
         >
           Sign Up
