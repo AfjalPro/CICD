@@ -51,7 +51,7 @@ jobs:
           echo "POSTGRES_PORT=5432"           >> .env
 
       - name: Start Docker Compose stack
-        run: docker compose up -f docker-compose.prod.yml -d 
+        run: docker compose -f docker-compose.dev.yml up -d --build 
 
       - name: Install test dependencies
         run: pip install pytest requests
