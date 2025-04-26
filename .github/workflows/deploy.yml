@@ -69,10 +69,13 @@ jobs:
             -f backend/Dockerfile backend
 
           docker buildx build \
-            --platform linux/amd64,linux/arm64 \
-            -t apolitichen/blog-frontend:latest \
-            --push \
-            -f frontend/Dockerfile frontend
+          --cache-from=type=registry,ref=apolitichen/blog-frontend:buildcache \
+          --cache-to=type=registry,ref=apolitichen/blog-frontend:buildcache,mode=max \
+          --platform linux/amd64,linux/arm64 \
+          -t apolitichen/blog-frontend:latest \
+          --push \
+          -f frontend/Dockerfile frontend
+
 
   deploy:
     name: Deploy to EC2
@@ -82,7 +85,7 @@ jobs:
       - name: SSH Deploy
         uses: appleboy/ssh-action@v0.1.8
         with:
-          host: ${{ vars.EC2_HOST_IP }}
+          host: 54.226.196.235 # ${{ vars.EC2_HOST_IP }}
           username: ubuntu
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
