@@ -10,8 +10,7 @@ jobs:
     name: Build, Test, and Push
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
@@ -21,33 +20,35 @@ jobs:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
 
-      - name: Add Docker’s repository for docker-compose-plugin
+      - name: Install docker-compose-plugin deps
         run: |
           sudo mkdir -p /etc/apt/keyrings
-          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-          echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-          sudo apt-get update
-
-      - name: Install Docker Compose plugin
-        run: sudo apt-get install -y docker-compose-plugin
+          curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
+            | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+          echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
+            https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" \
+            | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+          sudo apt-get update && sudo apt-get install -y docker-compose-plugin
 
       - name: Log in to Docker Hub
-        run: echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login --username apolitichen --password-stdin
+        run: echo "${{ secrets.DOCKERHUB_PASSWORD }}" \
+          | docker login --username apolitichen --password-stdin
 
-      - name: Build and load AMD64 image for testing
+      - name: Build and load backend for tests
         run: |
           docker buildx build \
             --platform linux/amd64 \
             -t apolitichen/fastapi-postgres-app:latest \
-            --load .
+            --load \
+            -f backend/Dockerfile backend
 
       - name: Generate .env file from secrets
         run: |
-          echo "POSTGRES_USER=fastapi" > .env
+          echo "POSTGRES_USER=fastapi"        > .env
           echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> .env
-          echo "POSTGRES_DB=fastapi_db" >> .env
-          echo "POSTGRES_HOST=db" >> .env
-          echo "POSTGRES_PORT=5432" >> .env
+          echo "POSTGRES_DB=fastapi_db"       >> .env
+          echo "POSTGRES_HOST=db"             >> .env
+          echo "POSTGRES_PORT=5432"           >> .env
 
       - name: Start Docker Compose stack
         run: docker compose up -d
@@ -58,13 +59,20 @@ jobs:
       - name: Run integration tests
         run: pytest -v
 
-      - name: Build and push multi-arch images
+      - name: Build & Push multi-arch images
         if: success()
         run: |
           docker buildx build \
             --platform linux/amd64,linux/arm64 \
             -t apolitichen/fastapi-postgres-app:latest \
-            --push .
+            --push \
+            -f backend/Dockerfile backend
+
+          docker buildx build \
+            --platform linux/amd64,linux/arm64 \
+            -t apolitichen/blog-frontend:latest \
+            --push \
+            -f frontend/Dockerfile frontend
 
   deploy:
     name: Deploy to EC2
@@ -78,8 +86,6 @@ jobs:
           username: ubuntu
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            eval "$(ssh-agent -s)"
-            echo "apolitichen" | ssh-add /home/ubuntu/.ssh/id_ed25519
             cd /home/ubuntu/CICD
             git pull
             docker compose -f docker-compose.prod.yml pull
