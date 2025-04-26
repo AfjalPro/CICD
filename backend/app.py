@@ -38,7 +38,6 @@ def signup(user: UserCreate, db: Session = Depends(get_db)):
     db.refresh(db_user)
     return db_user
 
-# --- Token endpoint ---
 @app.post("/token", response_model=Token)
 def login_for_access_token(
     form_data: OAuth2PasswordRequestForm = Depends(),
@@ -57,7 +56,6 @@ def login_for_access_token(
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
-# --- Create a post (authenticated) ---
 @app.post("/posts/", response_model=PostRead)
 def create_post(
     post: PostCreate,
@@ -78,17 +76,15 @@ def read_users_me(current_user: User = Depends(get_current_user)):
         "email": current_user.email,
         "created_at": current_user.created_at
     }
-# --- Read all posts (public) ---
+
 @app.get("/posts/", response_model=list[PostRead])
 def read_posts(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     return db.query(Post).offset(skip).limit(limit).all()
 
-# --- Read my posts (authenticated) ---
 @app.get("/posts/me", response_model=list[PostRead])
 def read_my_posts(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     return db.query(Post).filter(Post.owner_id == current_user.id).all() 
 
-# --- Read a single post (public) ---
 @app.get("/posts/{post_id}", response_model=PostRead)
 def read_post(post_id: int, db: Session = Depends(get_db)):
     post = db.query(Post).get(post_id)
@@ -96,7 +92,6 @@ def read_post(post_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Post not found")
     return post
 
-# --- Update a post (owner only) ---
 @app.put("/posts/{post_id}", response_model=PostRead)
 def update_post(
     post_id: int,
@@ -115,7 +110,6 @@ def update_post(
     db.refresh(post)
     return post
 
-# --- Delete a post (owner only) ---
 @app.delete("/posts/{post_id}")
 def delete_post(
     post_id: int,

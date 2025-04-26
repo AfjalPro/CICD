@@ -13,7 +13,6 @@ class PostRead(PostCreate):
     class Config:
         orm_mode = True
 
-# --- User schemas ---
 class UserCreate(BaseModel):
     username: str
     email: str
@@ -28,7 +27,6 @@ class UserRead(BaseModel):
     class Config:
         orm_mode = True
 
-# --- Token schema ---
 class Token(BaseModel):
     access_token: str
     token_type: str
