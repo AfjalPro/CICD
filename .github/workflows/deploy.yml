@@ -89,6 +89,8 @@ jobs:
           username: ubuntu
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
+            eval "$(ssh-agent -s)"
+            echo "apolitichen" | ssh-add /home/ubuntu/.ssh/id_ed25519
             cd /home/ubuntu/CICD
             git pull
             docker compose -f docker-compose.prod.yml pull
